@@ -69,7 +69,7 @@
 
       /* Text */
       .meta {
-        margin-bottom: 8px;
+        margin-bottom: 80px;
         font-size: 0.9rem;
         font-weight: 400; /* no bold */
       }
@@ -98,8 +98,8 @@
          - "end"    -> target date
          ISO strings or any format accepted by Date constructor
       =================================*/
-      const start = new Date("2025-05-01T00:00:00-03:00"); // <-- EDIT
-      const end   = new Date("2025-06-01T00:00:00-03:00"); // <-- EDIT
+      const start = new Date("2025-05-03T00:00:00-03:00"); // <-- EDIT
+      const end   = new Date("2026-05-03T00:00:00-03:00"); // <-- EDIT
 
       const fill        = document.getElementById("fill");
       const label       = document.getElementById("label");
@@ -136,7 +136,7 @@
         // Countdown text
         const breakdown = diffBreakdown(now, end);
         const opts = { day: '2-digit', month: 'short', year: 'numeric' };
-        countdownEl.textContent = `Target: ${end.toLocaleDateString('en-US', opts)} – ${formatCountdown(breakdown)} left`;
+        countdownEl.textContent = `${end.toLocaleDateString('en-US', opts)} | ${formatCountdown(breakdown)} left`;
       }
 
       updateProgress();
