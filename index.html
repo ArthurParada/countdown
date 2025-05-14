@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progress Bar – Notion Widget</title>
+    <style>
+      /* ======= QUICK CONFIG ======= */
+      :root {
+        /* Colors */
+        --bar-bg: transparent; /* empty portion */
+        --bar-fill: #00274a;   /* deep navy */
+        --bar-stroke: #000;    /* black frame */
+        /* Sizing */
+        --bar-height: 26px;
+        --bar-radius: 0px;     /* square corners */
+        /* Typography */
+        --font-family: "Inter", sans-serif; /* Notion default */
+        --text-color: #fdf7ee; /* parchment white */
+      }
+
+      /* RESET */
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-family);
+        background: transparent;
+        color: var(--text-color);
+        text-align: center;
+      }
+
+      #container { width: 90%; max-width: 680px; }
+
+      /* ======= PROGRESS BAR ======= */
+      .progress {
+        position: relative;
+        width: 100%;
+        height: var(--bar-height);
+        background: var(--bar-bg);
+        border: 3px solid var(--bar-stroke); /* black frame */
+        border-radius: var(--bar-radius);    /* now 0 */
+        overflow: hidden;
+      }
+
+      /* Animated stripes */
+      .fill {
+        height: 100%;
+        width: 0%;
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(253, 247, 238, 0.25) 0 10px,
+            rgba(253, 247, 238, 0.25) 10px 20px
+          ),
+          var(--bar-fill);
+        background-size: 40px 40px;
+        animation: move 2s linear infinite;
+        border-radius: var(--bar-radius);    /* now 0 */
+        transition: width 0.6s ease;
+      }
+
+      @keyframes move {
+        from { background-position: 0 0; }
+        to   { background-position: 40px 0; }
+      }
+
+      /* Text */
+      .meta {
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      #label {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="countdown" class="meta"></div>
+      <div class="progress">
+        <div id="fill" class="fill"></div>
+      </div>
+      <span id="label">0%</span>
+    </div>
+
+    <script>
+      /* ===============================
+         SET YOUR DATES HERE
+         - "start"  -> starting date
+         - "end"    -> target date
+         ISO strings or any format accepted by Date constructor
+      =================================*/
+      const start = new Date("2025-05-01T00:00:00-03:00"); // <-- EDIT
+      const end   = new Date("2025-06-01T00:00:00-03:00"); // <-- EDIT
+
+      const fill        = document.getElementById("fill");
+      const label       = document.getElementById("label");
+      const countdownEl = document.getElementById("countdown");
+
+      function diffBreakdown(now, target) {
+        const diffMs = Math.max(target - now, 0);
+        const totalDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        const months = Math.floor(totalDays / 30);
+        const weeks  = Math.floor((totalDays % 30) / 7);
+        const days   = (totalDays % 30) % 7;
+        return { months, weeks, days };
+      }
+
+      function formatCountdown({ months, weeks, days }) {
+        const parts = [];
+        if (months) parts.push(`${months} month${months > 1 ? 's' : ''}`);
+        if (weeks)  parts.push(`${weeks} week${weeks > 1 ? 's' : ''}`);
+        if (days || (!months && !weeks))
+          parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+        return parts.join(', ');
+      }
+
+      function updateProgress() {
+        const now = new Date();
+        const total = end - start;
+        const elapsed = Math.min(Math.max(now - start, 0), total);
+        const pct = total > 0 ? (elapsed / total) * 100 : 0;
+
+        fill.style.width = pct.toFixed(2) + '%';
+        label.textContent = pct.toFixed(1) + '% complete';
+
+        // Countdown text
+        const breakdown = diffBreakdown(now, end);
+        const opts = { day: '2-digit', month: 'short', year: 'numeric' };
+        countdownEl.textContent = `Target: ${end.toLocaleDateString('en-US', opts)} – ${formatCountdown(breakdown)} left`;
+      }
+
+      updateProgress();
+      setInterval(updateProgress, 60000);
+    </script>
+  </body>
+</html>
